@@ -9,7 +9,7 @@ const chainId = {
 };
 
 const LPM_ADDRESS = {
-  AVALANCHE: '',
+  AVALANCHE: '0x76b411c884838CbCb3A58d02E7b386EA037b6161',
   FUJI: '0x801fb5cfFD1dA77252389faf2D8C1bF5AAfCCA96',
 };
 
@@ -36,6 +36,7 @@ async function calculateAndDistribute({ boostedLpm, web3, networkId, address, pr
 
       const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
       console.log(receipt, ': RECEIPT');
+      return;
     } catch (error) {
       console.log(error, ': ERROR SENDING');
       throw new Error('ERROR SENDING TX: CALCULATE AND DISTRIBUTE');
@@ -68,6 +69,7 @@ async function vestAllocation({ boostedLpm, web3, networkId, address, privateKey
 
       const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
       console.log(receipt, ': RECEIPT');
+      return;
     } catch (error) {
       console.log(error, ': ERROR SENDING');
       throw new Error('ERROR SENDING: VEST ALLOC');
