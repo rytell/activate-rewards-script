@@ -17,6 +17,7 @@ const sendError = async (error) => {
   try {
     await Promise.all(recipients.map(recipient => {
       sgMail.send({ ...msg, to: recipient });
+      console.log(': SENT EMAIL')
     }));
   } catch (error) {
     console.log(error, ': ERROR SENDING EMAIL');
