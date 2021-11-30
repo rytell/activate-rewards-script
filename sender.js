@@ -5,6 +5,7 @@
 const sendError = async (error) => {
   const sgMail = require('@sendgrid/mail')
   sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+  console.log(process.env.SENDGRID_API_KEY, ': SENDGRID API KEY')
 
   const recipients = ['xpinatapartydev@gmail.com', 'pluismedinaf@yahoo.com', 'pedromedina190@gmail.com'];
 
@@ -17,7 +18,6 @@ const sendError = async (error) => {
   try {
     await Promise.all(recipients.map(recipient => {
       sgMail.send({ ...msg, to: recipient });
-      console.log(': SENT EMAIL')
     }));
   } catch (error) {
     console.log(error, ': ERROR SENDING EMAIL');
