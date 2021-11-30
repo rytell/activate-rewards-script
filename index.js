@@ -1,3 +1,5 @@
+const { sendError } = require('./sender');
+
 const RPC_API = {
   AVALANCHE: 'https://api.avax.network/ext/bc/C/rpc',
   FUJI: 'https://api.avax-test.network/ext/bc/C/rpc',
@@ -10,7 +12,7 @@ const chainId = {
 
 const LPM_ADDRESS = {
   AVALANCHE: '0x76b411c884838CbCb3A58d02E7b386EA037b6161',
-  FUJI: '0x801fb5cfFD1dA77252389faf2D8C1bF5AAfCCA96',
+  FUJI: '0xDeCe82e7f8957A8c02e320D7db10Db01D6c1De6D',
 };
 
 async function calculateAndDistribute({ boostedLpm, web3, networkId, address, privateKey }) {
@@ -39,10 +41,12 @@ async function calculateAndDistribute({ boostedLpm, web3, networkId, address, pr
       return;
     } catch (error) {
       console.log(error, ': ERROR SENDING');
+      await sendError(error);
       throw new Error('ERROR SENDING TX: CALCULATE AND DISTRIBUTE');
     }
   } catch (error) {
     console.log(error, ': ERROR ESTIMATING');
+    await sendError(error);
     throw new Error('ERROR ESTIMATING: CALCULATE AND DISTRIBUTE');
   }
 }
@@ -72,6 +76,7 @@ async function vestAllocation({ boostedLpm, web3, networkId, address, privateKey
       return;
     } catch (error) {
       console.log(error, ': ERROR SENDING');
+      await sendError(error);
       throw new Error('ERROR SENDING: VEST ALLOC');
     }
   } catch (error) {
