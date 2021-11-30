@@ -6,7 +6,7 @@ const sendError = async (error) => {
   const sgMail = require('@sendgrid/mail')
   sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
-  const recipients = ['pluismedinaf@yahoo.com', 'pedromedina190@gmail.com'];
+  const recipients = ['xpinatapartydev@gmail.com', 'pluismedinaf@yahoo.com', 'pedromedina190@gmail.com'];
 
   const msg = {
     from: 'pedromedina190@gmail.com',
