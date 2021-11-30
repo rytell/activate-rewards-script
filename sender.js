@@ -14,7 +14,7 @@ const sendError = (error) => {
     Destination: {
       ToAddresses: [
         'xpinatapartydev@gmail.com',
-        'Spicyforkbtc@gmail.com'
+        // 'Spicyforkbtc@gmail.com'
       ],
     },
     ReplyToAddresses: [],
