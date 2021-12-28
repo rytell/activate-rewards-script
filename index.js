@@ -95,21 +95,29 @@ async function main() {
   const networkId = chainId[process.env.NETWORK];
   const boostedLpm = new web3.eth.Contract(BoostedLiquidityPoolManagerAbi, LPM_ADDRESS[process.env.NETWORK]);
 
-  await vestAllocation({
-    boostedLpm,
-    networkId,
-    web3,
-    privateKey,
-    address,
-  });
+  try {
+    await vestAllocation({
+      boostedLpm,
+      networkId,
+      web3,
+      privateKey,
+      address,
+    }); 
+  } catch (error) {
+    console.log(error);
+  }
 
-  await calculateAndDistribute({
-    boostedLpm,
-    networkId,
-    web3,
-    privateKey,
-    address,
-  });
+  try {
+    await calculateAndDistribute({
+      boostedLpm,
+      networkId,
+      web3,
+      privateKey,
+      address,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 main();
