@@ -46,7 +46,7 @@ async function calculateAndDistribute({ boostedLpm, web3, networkId, address, pr
     }
   } catch (error) {
     console.log(error, ': ERROR ESTIMATING');
-    await sendError(error);
+    // await sendError(error);
     throw new Error('ERROR ESTIMATING: CALCULATE AND DISTRIBUTE');
   }
 }
