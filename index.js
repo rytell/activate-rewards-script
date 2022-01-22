@@ -12,11 +12,11 @@ const chainId = {
 
 const LPM_ADDRESS = {
   AVALANCHE: '0x76b411c884838CbCb3A58d02E7b386EA037b6161',
-  FUJI: '0xDeCe82e7f8957A8c02e320D7db10Db01D6c1De6D',
+  FUJI: '0x6B7494a1dD11C51E04613DD148bc298082557Dfe',
 };
 
-async function calculateAndDistribute({ boostedLpm, web3, networkId, address, privateKey }) {
-  const calculateAndDistributeTx = boostedLpm.methods.calculateAndDistribute();
+async function calculateAndDistribute({ liquidityPoolManager, web3, networkId, address, privateKey }) {
+  const calculateAndDistributeTx = liquidityPoolManager.methods.calculateAndDistribute();
   try {
     const gas = await calculateAndDistributeTx.estimateGas({ from: address });
     try {
@@ -26,7 +26,7 @@ async function calculateAndDistribute({ boostedLpm, web3, networkId, address, pr
 
       const signedTx = await web3.eth.accounts.signTransaction(
         {
-          to: boostedLpm.options.address,
+          to: liquidityPoolManager.options.address,
           data,
           gas,
           gasPrice,
@@ -51,8 +51,8 @@ async function calculateAndDistribute({ boostedLpm, web3, networkId, address, pr
   }
 }
 
-async function vestAllocation({ boostedLpm, web3, networkId, address, privateKey }) {
-  const vestAllocationTx = boostedLpm.methods.vestAllocation();
+async function vestAllocation({ liquidityPoolManager, web3, networkId, address, privateKey }) {
+  const vestAllocationTx = liquidityPoolManager.methods.vestAllocation();
   try {
     const gas = await vestAllocationTx.estimateGas({ from: address });
     try {
@@ -61,7 +61,7 @@ async function vestAllocation({ boostedLpm, web3, networkId, address, privateKey
       const nonce = await web3.eth.getTransactionCount(address);
       const signedTx = await web3.eth.accounts.signTransaction(
         {
-          to: boostedLpm.options.address,
+          to: liquidityPoolManager.options.address,
           data,
           gas,
           gasPrice,
@@ -85,37 +85,82 @@ async function vestAllocation({ boostedLpm, web3, networkId, address, privateKey
   }
 }
 
-async function main() {
-  require('dotenv').config();
-  const address = process.env.ADDRESS;
-  const privateKey = process.env.PRIVATE_KEY;
-  const { abi: BoostedLiquidityPoolManagerAbi } = require('./constants/BoostedLiquidityPoolManager.json');
-  const Web3 = require('web3');
-  const web3 = new Web3(new Web3.providers.HttpProvider(RPC_API[process.env.NETWORK]));
-  const networkId = chainId[process.env.NETWORK];
-  const boostedLpm = new web3.eth.Contract(BoostedLiquidityPoolManagerAbi, LPM_ADDRESS[process.env.NETWORK]);
-
-  try {
-    await vestAllocation({
-      boostedLpm,
-      networkId,
-      web3,
-      privateKey,
-      address,
-    }); 
-  } catch (error) {
-    console.log(error);
-  }
-
+const retryDistribute = () => {
   try {
     await calculateAndDistribute({
-      boostedLpm,
+      liquidityPoolManager,
       networkId,
       web3,
       privateKey,
       address,
     });
   } catch (error) {
+    retryDistribute();
+    console.log(error);
+  }
+}
+
+const retryAll = async () => {
+  try {
+    await vestAllocation({
+      liquidityPoolManager,
+      networkId,
+      web3,
+      privateKey,
+      address,
+    });
+    
+    try {
+      await calculateAndDistribute({
+        liquidityPoolManager,
+        networkId,
+        web3,
+        privateKey,
+        address,
+      });
+    } catch (error) {
+      retryDistribute();
+      console.log(error);
+    }
+  } catch (error) {
+    retryAll();
+    console.log(error);
+  }
+}
+
+async function main() {
+  require('dotenv').config();
+  const address = process.env.ADDRESS;
+  const privateKey = process.env.PRIVATE_KEY;
+  const { abi: LiquidityPoolManagerAbi } = require('@rytell/liquidity-pools/artifacts/contracts/LiquidityPoolManager.sol/LiquidityPoolManager.json');
+  const Web3 = require('web3');
+  const web3 = new Web3(new Web3.providers.HttpProvider(RPC_API[process.env.NETWORK]));
+  const networkId = chainId[process.env.NETWORK];
+  const liquidityPoolManager = new web3.eth.Contract(LiquidityPoolManagerAbi, LPM_ADDRESS[process.env.NETWORK]);
+
+  try {
+    await vestAllocation({
+      liquidityPoolManager,
+      networkId,
+      web3,
+      privateKey,
+      address,
+    });
+    
+    try {
+      await calculateAndDistribute({
+        liquidityPoolManager,
+        networkId,
+        web3,
+        privateKey,
+        address,
+      });
+    } catch (error) {
+      retryDistribute();
+      console.log(error);
+    }
+  } catch (error) {
+    retryAll();
     console.log(error);
   }
 }
