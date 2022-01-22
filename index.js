@@ -85,7 +85,13 @@ async function vestAllocation({ liquidityPoolManager, web3, networkId, address, 
   }
 }
 
-const retryDistribute = async () => {
+const retryDistribute = async ({
+  liquidityPoolManager,
+  networkId,
+  web3,
+  privateKey,
+  address,
+}) => {
   try {
     await calculateAndDistribute({
       liquidityPoolManager,
@@ -95,12 +101,22 @@ const retryDistribute = async () => {
       address,
     });
   } catch (error) {
-    await retryDistribute();
+    await retryDistribute({
+      liquidityPoolManager,
+      networkId,
+      web3,
+      privateKey,
+      address,
+    });
     console.log(error);
   }
 }
 
-const retryAll = async () => {
+const retryAll = async ({ liquidityPoolManager,
+  networkId,
+  web3,
+  privateKey,
+  address,}) => {
   try {
     await vestAllocation({
       liquidityPoolManager,
@@ -119,11 +135,23 @@ const retryAll = async () => {
         address,
       });
     } catch (error) {
-      await retryDistribute();
+      await retryDistribute({
+        liquidityPoolManager,
+        networkId,
+        web3,
+        privateKey,
+        address,
+      });
       console.log(error);
     }
   } catch (error) {
-    await retryAll();
+    await retryAll({
+      liquidityPoolManager,
+      networkId,
+      web3,
+      privateKey,
+      address,
+    });
     console.log(error);
   }
 }
@@ -156,11 +184,23 @@ async function main() {
         address,
       });
     } catch (error) {
-      retryDistribute();
+      await retryDistribute({
+        liquidityPoolManager,
+        networkId,
+        web3,
+        privateKey,
+        address,
+      });
       console.log(error);
     }
   } catch (error) {
-    retryAll();
+    await retryAll({
+      liquidityPoolManager,
+      networkId,
+      web3,
+      privateKey,
+      address,
+    });
     console.log(error);
   }
 }
