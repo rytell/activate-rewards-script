@@ -85,7 +85,7 @@ async function vestAllocation({ liquidityPoolManager, web3, networkId, address, 
   }
 }
 
-const retryDistribute = () => {
+const retryDistribute = async () => {
   try {
     await calculateAndDistribute({
       liquidityPoolManager,
@@ -95,7 +95,7 @@ const retryDistribute = () => {
       address,
     });
   } catch (error) {
-    retryDistribute();
+    await retryDistribute();
     console.log(error);
   }
 }
@@ -119,11 +119,11 @@ const retryAll = async () => {
         address,
       });
     } catch (error) {
-      retryDistribute();
+      await retryDistribute();
       console.log(error);
     }
   } catch (error) {
-    retryAll();
+    await retryAll();
     console.log(error);
   }
 }
